@@ -48,7 +48,4 @@ def main():
             final_mons.extend(special_mons.get(mon, []) for mon in final_mons if mon in special_mons)
             await msg.channel.send(' '.join(final_mons).replace('_', ''))
 
-token = os.getenv('DISCORD_TOKEN')
-print(f"Token used: '{token}'")  # This will show the exact token being used
-client.run(token)
-
+client.run(user_token)
