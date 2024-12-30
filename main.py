@@ -2,6 +2,8 @@ import json
 import os
 from pathlib import Path
 from discord.ext import commands
+import discord
+from discord_slash import SlashCommand  # Make sure you have this package installed if using slash commands
 import pokeformat
 
 __version__ = "v2.0.0"
@@ -13,7 +15,7 @@ def read_pokemon(pokemon_list_dir):
             return json.load(f)
     except FileNotFoundError:
         pokeformat.format_poke()  # Attempt to regenerate the Pokémon list if not found.
-        return read_pokemon()     # Recursive call to try reading again after generation.
+        return read_pokemon(pokemon_list_dir)  # Recursive call with correct parameter
 
 def special_pokemon(pokemon):
     """Creates a dictionary of special Pokémon forms for quick lookup."""
@@ -32,21 +34,24 @@ def search_mons(hint, pokemon):
     return possible_mons
 
 def setup_bot():
-    pokemon_list_dir = Path('Bidoof/pokemon.json')
-    bot = commands.Bot(command_prefix='/', intents=intents)
-    slash = SlashCommand(bot, sync_commands=True)
+    intents = discord.Intents.default()
+    intents.messages = True
+    intents.guilds = True
+    intents.message_content = True  # Enable if your bot reads message content
+
+    bot = commands.Bot(command_prefix='!', intents=intents)
+    slash = SlashCommand(bot, sync_commands=True)  # Only necessary if using slash commands
 
     @bot.event
     async def on_ready():
-        """Event that triggers when the bot is fully ready."""
         print(f'Initialized PokeHelper {__version__}')
+        pokemon_list_dir = Path('Bidoof/pokemon.json')
         bot.pokemon = read_pokemon(pokemon_list_dir)
         bot.special_mons = special_pokemon(bot.pokemon)
         print("Pokémon data loaded and ready to go!")
 
     @bot.command(name='identify')
     async def identify_pokemon(ctx, *, message: str):
-        """A command to identify Pokémon based on a given message hint."""
         if 'The pokémon is' in message:
             content = message.strip().strip('.')
             pokemon_hint = ''.join('_' if c == '\\' else c for c in content)
@@ -57,6 +62,7 @@ def setup_bot():
 
     return bot
 
+
 if __name__ == "__main__":
     bot = setup_bot()
-    bot.run(os.getenv('DISCORD_TOKEN'))
+    bot.run(os.environ['DISCORD_TOKEN'])
