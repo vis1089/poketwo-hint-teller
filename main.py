@@ -95,8 +95,4 @@ def main():
                 possible_mons = new_possible_mons
         return possible_mons
 
-    client.run(os.getenv("TOKEN"))
-
-
-if __name__ == '__main__':
-    main()
+bot.run(os.environ['DISCORD_TOKEN'])
