@@ -33,7 +33,8 @@ def search_mons(hint, pokemon):
 
 def setup_bot():
     pokemon_list_dir = Path('Bidoof/pokemon.json')
-    bot = commands.Bot(command_prefix='!', intents=discord.Intents.default())
+    bot = commands.Bot(command_prefix='/', intents=intents)
+    slash = SlashCommand(bot, sync_commands=True)
 
     @bot.event
     async def on_ready():
